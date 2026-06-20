@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply Here: The Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600&display=swap');
+:root{
+  --bg:#eef2f7;
+  --card:#f7f9fc;
+  --ink:#28323f;
+  --muted:#5c6b7e;
+  --faint:#7a879a;
+  --line:#d8e1ec;
+  --line-soft:#e4ebf3;
+  --chrome:#eef3f9;
+  --accent:#445a7a;
+  --accent-d:#334563;
+  --accent-soft:#e6edf5;
+  --danger:#a2473a;
+  --danger-d:#7c3025;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+button{white-space:nowrap;}
+.spl-h{white-space:nowrap;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px;color:var(--ink);-webkit-font-smoothing:antialiased;}
+#sparkle-c{position:fixed;inset:0;pointer-events:none;z-index:800;}
+
+#game{width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:10;margin-top:18px;}
+
+#main-title{display:none;}
+
+/* INBOX WINDOW */
+#laptop-fixed{width:100%;display:flex;flex-direction:column;align-items:center;}
+#screen{width:100%;height:464px;background:var(--card);border:1px solid var(--line);border-radius:12px 12px 0 0;overflow:hidden;box-shadow:0 10px 30px rgba(40,55,80,0.09),0 2px 6px rgba(40,55,80,0.05);display:flex;flex-direction:column;}
+#sbar{height:56px;background:var(--chrome);padding:0 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;flex-shrink:0;position:relative;}
+#hope-status{display:flex;flex-direction:column;gap:7px;}
+.hope-lbl{font-size:8.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);line-height:1;white-space:nowrap;}
+#coins-row{display:flex;gap:6px;align-items:center;}
+.coin{width:9.5px;height:9.5px;border-radius:50%;background:#e0a83a;transition:background .35s,box-shadow .35s;}
+.coin.spent{background:transparent;box-shadow:inset 0 0 0 1.5px #c8d0dc;}
+#sbar-txt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;}
+#new-banner{height:30px;display:none;background:var(--accent-soft);align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--line);flex-shrink:0;}
+#new-banner.vis{display:flex;}
+#screen-content{flex:1;position:relative;overflow:hidden;}
+#apply-zone,#email-zone{position:absolute;inset:0;display:flex;flex-direction:column;}
+#apply-zone{align-items:center;justify-content:center;}
+#email-zone{visibility:hidden;pointer-events:none;}
+#email-pane{flex:1;padding:18px 24px 0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#cdd8e6 transparent;}
+#email-pane::-webkit-scrollbar{width:4px;}
+#email-pane::-webkit-scrollbar-thumb{background:#cdd8e6;border-radius:2px;}
+#efrom{font-size:11px;color:var(--faint);margin-bottom:4px;font-weight:500;letter-spacing:.02em;}
+#esubj{font-size:19px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.3;padding-bottom:10px;border-bottom:1px solid var(--line-soft);letter-spacing:-.01em;}
+#ebody{font-size:14px;color:#3c4756;line-height:1.58;white-space:pre-line;padding-bottom:8px;}
+#ebody.no-greeting{padding-top:8px;}
+#screen-btns{height:54px;flex-shrink:0;display:flex;gap:8px;align-items:center;justify-content:center;padding:0 18px;border-top:1px solid var(--line);background:var(--chrome);}
+.aBtn{
+  font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;
+  height:34px;width:100%;max-width:158px;
+  border-radius:8px;cursor:pointer;
+  letter-spacing:.01em;
+  transition:background .14s,border-color .14s,color .14s,transform .07s;
+  white-space:nowrap;
+}
+.aBtn:active{transform:translateY(1px);}
+.aBtn.claim{background:var(--accent);color:#fff;border:1px solid var(--accent);}
+.aBtn.claim:hover{background:var(--accent-d);}
+.aBtn.wd{background:#fff;color:var(--muted);border:1px solid var(--line);}
+.aBtn.wd:hover{border-color:#c2cedd;color:var(--ink);}
+.aBtn.ig{background:#fff;color:var(--muted);border:1px solid var(--line);font-size:11.5px;}
+.aBtn.ig:hover{border-color:#c2cedd;color:var(--ink);}
+#chin{width:calc(100% + 8px);height:11px;background:#cdd8e6;border-radius:0 0 5px 5px;border:1px solid var(--line);border-top:none;box-shadow:0 3px 8px rgba(40,55,80,0.07);}
+#foot{width:32%;height:5px;background:#cdd8e6;border-radius:0 0 4px 4px;}
+
+/* PRIZE TRAY */
+#tray-wrap{width:100%;position:relative;}
+#prize-tray{
+  width:100%;min-height:56px;background:var(--card);
+  border:1px solid var(--line);border-radius:10px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:11px;padding:10px 16px 10px 72px;position:relative;
+  box-shadow:0 1px 2px rgba(40,55,80,0.05);
+}
+#tray-lbl{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;}
+
+/* GEMS */
+.gem{width:25px;height:27px;display:inline-block;line-height:0;transition:transform .2s ease;cursor:default;}
+.gem:hover{transform:translateY(-3px) scale(1.12);}
+.gem .glint{transform-box:fill-box;transform-origin:center;animation:gemTwinkle 3.4s ease-in-out infinite;}
+.gem:nth-child(2n) .glint{animation-delay:-1.1s;}
+.gem:nth-child(3n) .glint{animation-delay:-2.2s;}
+@keyframes gemTwinkle{0%,100%{opacity:.25;transform:scale(.65) rotate(0deg);}50%{opacity:.95;transform:scale(1.05) rotate(35deg);}}
+.gem.arriving{animation:gemArrive 1.1s cubic-bezier(.2,.9,.25,1);}
+@keyframes gemArrive{
+  0%{transform:scale(.15);opacity:0;}
+  40%{transform:scale(1.35);opacity:1;}
+  64%{transform:scale(.93);}
+  100%{transform:scale(1);}
+}
+
+/* THREAT */
+#threat-hud{width:100%;background:transparent;padding:2px 4px 8px;display:flex;align-items:center;gap:12px;}
+.hud-lbl-t{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);white-space:nowrap;}
+#threat-track{flex:1;height:5px;background:#dce4ee;border-radius:4px;overflow:hidden;}
+#threat-fill{height:100%;width:18%;border-radius:3px;background:#4caf82;transition:width .5s ease,background .4s ease;}
+#threat-fill.active{background:var(--danger);}
+#threat-fill.danger{background:var(--danger);animation:tpulse .7s ease-in-out infinite alternate;}
+@keyframes tpulse{from{opacity:.78;}to{opacity:1;}}
+
+/* PRIMARY BUTTONS */
+.btn-apply{font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;padding:13px 38px;border-radius:9px;cursor:pointer;background:var(--accent);color:#fff;border:1px solid var(--accent);box-shadow:0 1px 2px rgba(20,24,40,0.08);letter-spacing:.01em;transition:background .12s,transform .08s;}
+.btn-apply:hover{background:var(--accent-d);}
+.btn-apply:active{transform:translateY(1px);}
+.btn-offer{font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;padding:12px 30px;border-radius:9px;border:1px solid var(--danger);cursor:pointer;background:var(--danger);color:#fff;box-shadow:0 1px 2px rgba(120,40,32,0.18);letter-spacing:.01em;transition:background .12s;}
+.btn-offer:hover{background:var(--danger-d);}
+.btn-offer:active{transform:translateY(1px);}
+
+/* OVERLAYS */
+.overlay{display:none;position:fixed;inset:0;z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;gap:16px;}
+.overlay.show{display:flex;}
+#splash{background:var(--bg);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 40px 56px;gap:0;}
+.spl-h{font-family:'IBM Plex Sans',sans-serif;font-size:50px;font-weight:600;color:var(--ink);letter-spacing:-.025em;line-height:1.05;margin-bottom:12px;}
+.spl-tag{font-size:13px;color:var(--muted);font-weight:400;margin-bottom:26px;letter-spacing:.01em;}
+.spl-prize{font-size:13.5px;color:var(--muted);font-style:italic;font-weight:500;margin-top:18px;}
+.spl-btn{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:11px 34px;border-radius:8px;cursor:pointer;background:var(--accent);color:#fff;border:1px solid var(--accent);box-shadow:0 1px 2px rgba(20,24,40,0.08);letter-spacing:.01em;transition:background .12s;}
+.spl-btn:hover{background:var(--accent-d);}
+.spl-btn:active{transform:translateY(1px);}
+#offer-screen{background:rgba(238,242,247,0.98);}
+.off-eye{font-size:11px;font-weight:600;color:var(--danger);letter-spacing:.14em;text-transform:uppercase;}
+.off-title{font-family:'IBM Plex Serif',serif;font-size:32px;font-weight:500;color:var(--ink);line-height:1.28;}
+#lose-screen{background:#141821;}
+.lose-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(140,0,0,0.05) 3px,rgba(140,0,0,0.05) 6px);pointer-events:none;}
+.lose-over{font-size:11px;font-weight:600;color:#e8c8c8;letter-spacing:.24em;text-transform:uppercase;}
+.lose-reason{font-size:19px;font-weight:600;color:#ffffff;letter-spacing:.01em;}
+.lose-title{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:74px;color:#fff;text-shadow:0 0 36px rgba(200,40,40,0.55),0 0 72px rgba(140,0,0,0.35);line-height:1;position:relative;z-index:1;}
+.lose-body{font-size:13px;color:#c4a8a8;line-height:1.85;max-width:340px;}
+.btn-tryagain{font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;padding:12px 30px;border-radius:8px;border:1px solid #cc5555;background:rgba(180,60,60,0.28);color:#ffcccc;cursor:pointer;transition:background .15s,color .15s;}
+.btn-tryagain:hover{background:rgba(200,65,65,0.45);color:#ffe0e0;}
+#burnout-screen{background:#141821;}
+.burn-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(120,0,0,0.05) 3px,rgba(120,0,0,0.05) 6px);pointer-events:none;}
+.burn-over{font-size:11px;font-weight:600;color:#8a6a6a;letter-spacing:.24em;text-transform:uppercase;}
+.burn-title{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:74px;color:#fff;text-shadow:0 0 36px rgba(200,40,40,0.5),0 0 72px rgba(140,0,0,0.3);line-height:1;}
+.burn-sub{font-family:'IBM Plex Sans',sans-serif;font-size:17px;font-weight:600;color:#b8a8a8;}
+.burn-fine{font-size:12px;color:#7e6a6a;}
+.btn-dig{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 22px;border-radius:8px;border:1px solid #5a4848;background:rgba(255,255,255,0.05);color:#c4a4a4;cursor:pointer;}
+.btn-dig:hover{background:rgba(255,255,255,0.1);color:#e4bcbc;}
+.dig-resp{font-size:12px;color:#7e6a6a;display:none;max-width:300px;line-height:1.7;}
+.btn-rst{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;padding:10px 22px;border-radius:8px;border:1px solid #3a3a40;background:transparent;color:#7e7e86;cursor:pointer;}
+.btn-rst:hover{background:rgba(255,255,255,0.05);color:#a8a8b0;}
+#legend-screen{background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+#legend-gem-row{display:flex;gap:10px;align-items:center;justify-content:center;}
+.leg-row-gem{width:30px;height:33px;display:inline-block;animation:legRowGemIn .5s cubic-bezier(.2,.9,.25,1) both;}
+.leg-row-gem:nth-child(1){animation-delay:.04s;}
+.leg-row-gem:nth-child(2){animation-delay:.10s;}
+.leg-row-gem:nth-child(3){animation-delay:.16s;}
+.leg-row-gem:nth-child(4){animation-delay:.22s;}
+.leg-row-gem:nth-child(5){animation-delay:.28s;}
+@keyframes legRowGemIn{0%{transform:scale(0) translateY(10px);opacity:0;}60%{transform:scale(1.2) translateY(-4px);opacity:1;}100%{transform:scale(1) translateY(0);opacity:1;}}
+.leg-title{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:34px;color:var(--ink);letter-spacing:.005em;}
+#leg-title.celebrate{animation:legTitleGlow 1.8s ease-in-out infinite alternate;}
+@keyframes legTitleGlow{from{color:var(--accent);text-shadow:0 0 12px rgba(68,90,122,0.3);}to{color:#2a4a7a;text-shadow:0 0 32px rgba(68,90,122,0.55),0 0 60px rgba(68,90,122,0.25);}}
+.leg-gem-bounce{animation:legGemIn .7s cubic-bezier(.2,.9,.25,1) both;}
+.leg-gem-bounce:nth-child(1){animation-delay:.05s;}
+.leg-gem-bounce:nth-child(2){animation-delay:.18s;}
+.leg-gem-bounce:nth-child(3){animation-delay:.31s;}
+@keyframes legGemIn{0%{transform:scale(0) translateY(18px);opacity:0;}55%{transform:scale(1.28) translateY(-6px);opacity:1;}80%{transform:scale(.94) translateY(2px);}100%{transform:scale(1) translateY(0);opacity:1;}}
+@keyframes pileGemIn{0%{transform:scale(0) translateY(10px);opacity:0;}60%{transform:scale(1.15) translateY(-3px);opacity:1;}100%{transform:scale(1) translateY(0);opacity:1;}}
+.leg-score-num{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:84px;color:var(--accent);line-height:1;}
+.leg-score-lbl{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;margin-top:-6px;}
+.leg-board{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 30px;min-width:230px;text-align:left;box-shadow:0 1px 3px rgba(20,24,40,0.05);}
+.leg-board-title{font-family:'IBM Plex Sans',sans-serif;font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:12px;text-align:center;}
+.leg-board-rows{font-size:13px;color:var(--muted);line-height:2.15;}
+.leg-board-rows .leg-you{font-weight:600;color:var(--accent);}
+.leg-play-btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;padding:11px 36px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;box-shadow:0 1px 2px rgba(20,24,40,0.08);transition:background .12s;}
+.leg-play-btn:hover{background:var(--accent-d);}
+#wd-modal{display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);}
+#wd-modal.show{display:flex;}
+#wd-box{background:var(--card);border-radius:14px;padding:30px 36px;max-width:300px;text-align:center;box-shadow:0 16px 50px rgba(20,24,40,0.22);}
+.wd-warn{font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:600;color:var(--danger);letter-spacing:.06em;text-transform:uppercase;line-height:1.8;margin-bottom:10px;}
+#wd-box h3{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:21px;margin-bottom:8px;color:var(--ink);}
+#wd-box p{font-size:12px;color:var(--faint);line-height:1.5;margin-bottom:22px;}
+#wd-btns{display:flex;gap:8px;justify-content:center;}
+@media (max-height:620px){
+  #game{margin-top:8px;gap:8px;}
+  #screen{height:430px;}
+  #prize-tray{min-height:50px;padding-top:8px;padding-bottom:8px;}
+  .overlay{padding:22px;}
+  .lose-title,.burn-title{font-size:54px;}
+}
+</style>
+</head>
+<body>
+<canvas id="sparkle-c"></canvas>
+
+<div id="game">
+  <div id="main-title">Apply Here: The Game</div>
+
+  <div id="laptop-fixed">
+    <div id="screen">
+      <div id="sbar">
+        <div id="hope-status">
+          <div class="hope-lbl">Professional Hope</div>
+          <div id="coins-row"></div>
+        </div>
+        <span id="sbar-txt">Inbox</span>
+        <button id="sound-toggle" onclick="toggleSound()" title="Toggle sound" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:13px;color:var(--faint);padding:4px;line-height:1;">🔊</button>
+      </div>
+      <div id="new-banner">New Message</div>
+      <div id="screen-content">
+        <div id="apply-zone" style="padding-top:18%;">
+          <div id="apply-prompt" style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px;opacity:0;transition:opacity .4s;text-align:center;"></div>
+          <button class="btn-apply" onclick="doApply()">Apply Here</button>
+        </div>
+        <div id="email-zone">
+          <div id="email-pane">
+            <div id="efrom"></div>
+            <div id="spam-tag" style="display:none;font-size:9px;font-weight:700;color:#a0453f;letter-spacing:.07em;text-transform:uppercase;background:#fbe4e2;border-radius:4px;padding:1.5px 6px;margin:0 0 5px;">Suspected Spam</div>
+            <div id="esubj"></div>
+            <div id="ebody"></div>
+          </div>
+          <div id="screen-btns">
+            <button class="aBtn claim" onclick="doClaim()">Claim Rejection</button>
+            <button class="aBtn wd" onclick="askWd()">Withdraw</button>
+            <button class="aBtn ig" onclick="doIgnore()">Pretend Not to See It</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="chin"></div>
+    <div id="foot"></div>
+  </div>
+
+  <div id="tray-wrap" style="width:100%">
+    <div id="prize-tray"><div id="tray-lbl">Prizes</div></div>
+  </div>
+
+  <div id="threat-hud">
+    <div class="hud-lbl-t">Risk of Offer</div>
+    <div id="threat-track"><div id="threat-fill"></div></div>
+  </div>
+</div>
+
+
+<!-- QUIZ MODAL -->
+<div id="quiz-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div id="quiz-box" style="background:#fff;border-radius:14px;padding:32px 36px;max-width:440px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);">
+    <div class="quiz-header-lbl" style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:6px;">Skills Assessment</div>
+    <div class="quiz-header-sub" style="font-size:12px;color:var(--faint);margin-bottom:22px;font-style:italic;">This should only take a few minutes.</div>
+    <div id="quiz-content"></div>
+    <button id="quiz-next-btn" onclick="quizNext()" style="margin-top:22px;font-family:inherit;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Next</button>
+  </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div id="video-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div style="background:#fff;border-radius:14px;padding:32px 36px;max-width:440px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);text-align:center;">
+    <div style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:6px;">One-Way Video Interview</div>
+    <div style="font-size:12px;color:var(--faint);margin-bottom:20px;font-style:italic;">Please record a 90-second response. You may not pause or re-record.</div>
+    <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:26px;line-height:1.55;">"Describe a time when you demonstrated resilience in a professional context. Please be specific."</div>
+    <button id="record-btn" onclick="startRecording()" style="font-family:inherit;font-size:14px;font-weight:600;padding:12px 32px;border-radius:8px;background:var(--danger);color:#fff;border:1px solid var(--danger);cursor:pointer;">⏺ Record</button>
+    <div id="recording-indicator" style="display:none;margin-top:18px;font-size:12px;color:var(--danger);font-weight:600;animation:blink 1s infinite;">● Recording...</div>
+  </div>
+</div>
+<style>@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}</style>
+
+<div id="wd-modal">
+  <div id="wd-box">
+    <div class="wd-warn">⚠ Withdrawal is Permanent ⚠</div>
+    <h3>Are you sure?</h3>
+    <p>This action cannot be undone.</p>
+    <div id="wd-btns">
+      <button class="aBtn claim" style="max-width:118px;font-size:12px;height:34px;" onclick="confirmWd()">Confirm</button>
+      <button class="aBtn wd" style="max-width:118px;font-size:12px;height:34px;" onclick="closeWd()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay show" id="splash">
+  <div class="spl-h">Apply Here</div>
+  <div class="spl-tag">A rejection-collecting email game</div>
+  <button class="spl-btn" onclick="startGame()">Apply Here</button>
+  <div class="spl-prize">Claim rejections. Earn gems. Withdraw at your own risk.</div>
+</div>
+
+<div class="overlay" id="offer-screen">
+  <div class="off-eye">⚠ Incoming ⚠</div>
+  <div class="off-title">A job offer<br>has arrived.</div>
+  <button class="btn-offer" onclick="claimOffer()">Claim Offer</button>
+</div>
+
+<div class="overlay" id="lose-screen">
+  <div class="lose-scan"></div>
+  <div class="lose-over">— Game Over —</div>
+  <div class="lose-reason">You rejected too many rejections.</div>
+  <div class="lose-title">You Lose.</div>
+  <div class="lose-body">After careful review, we regret to inform you that this offer was extended in error.</div>
+  <button class="btn-tryagain" onclick="restart()">Try Again</button>
+  <div style="font-size:13px;color:#ffffff;margin-top:4px;max-width:260px;line-height:1.5;font-style:italic;">Hint: You're supposed to collect the rejections, not reject them.</div>
+</div>
+
+<div class="overlay" id="burnout-screen">
+  <div class="burn-scan"></div>
+  <div class="burn-over">— Game Over —</div>
+  <div class="burn-title">You Lose.</div>
+  <div class="burn-sub">Professional Hope Depleted.</div>
+  <div class="burn-fine">This is not a reflection of your qualifications.</div>
+  <button class="btn-dig" id="btn-dig" onclick="buyDig()">Purchase More Professional Hope</button>
+  <div class="dig-resp" id="dig-resp">After careful consideration, we are unable to offer additional professional hope at this time.</div>
+  <button class="btn-rst" onclick="restart()">A new position has been posted.</button>
+</div>
+
+
+<div class="overlay" id="legend-screen">
+  <div class="leg-title" id="leg-title">Rejection Legend</div>
+  <div id="legend-gem-row"></div>
+  <div class="leg-score-num" id="leg-score-num">15</div>
+  <div class="leg-score-lbl">Gems Earned</div>
+  <div class="leg-board">
+    <div class="leg-board-title">Leaderboard</div>
+    <div class="leg-board-rows" id="leg-board-rows"></div>
+  </div>
+  <button class="leg-play-btn" onclick="restart()">Play Again</button>
+</div>
+
+<script>
+const EMAILS=[
+  // LEVEL 1 — 6 emails
+  {tier:1,from:"Talent Acquisition",subject:"Thank you for your application",body:"Dear Candidate,\n\nWe have decided to move forward with other candidates at this time.\n\nWarm regards,\nThe Talent Team"},
+  {tier:1,from:"People & Culture",subject:"RE: Your Application",body:"Hi,\n\nWe were truly impressed. This was a very competitive process. You were not selected.\n\nBest,\nPeople & Culture"},
+  {tier:1,from:"Talent Community Team",subject:"We'd love to stay connected",body:"We can't move forward at this time.\n\nYou've been added to our Talent Community. You'll receive updates about roles, company news, and exclusive content from our Employer Brand Team.\n\nThe Talent Community Concierge",survey:true,noGreeting:true},
+  {tier:1,from:"Career Updates",subject:"Your profile is getting attention",body:"Hi,\n\nYour profile appeared in recent employer searches this month.\n\nYou applied to 94 positions.\nNo employers contacted you.\n\nCareer Updates"},
+  {tier:1,from:"Talent Alerts",subject:"A role we thought you'd love",body:"Junior Senior Operations Intern\nOn-site · 74 miles away\nCompensation: exposure\n\nThis role is no longer available. We wanted you to know.\n\nTalent Alerts",profilePopup:true,noGreeting:true},
+  {tier:1,from:"Culture & Talent Brand",subject:"Welcome to the TalentFirst Digest",body:"Hi,\n\nYou were not selected. You've been added to our quarterly talent newsletter.\n\nThis month: building resilience in uncertain markets, why culture fit matters more than ever, and a team spotlight on our snack committee.\n\nCulture & Talent Brand"},
+  // LEVEL 2 — 6 emails
+  {tier:2,from:"TalentBot 9000",subject:"Application carefully reviewed",body:"Hi,\n\nWe received your application 3 minutes ago.\n\nAfter careful review, this is not the right fit.\n\nAutomated Recruitment System"},
+  {tier:2,from:"HR Department",subject:"Your assessment results",body:"Dear Candidate,\n\nAfter reviewing your results, we have decided to move forward with an applicant whose profile better reflects our high-performing culture.\n\nYour results will remain on file.\n\nHR Department",quiz:true},
+  {tier:2,from:"Hiring Coordinator",subject:"Next steps — references",body:"Hi,\n\nThank you for providing three professional references.\n\nWe will not be contacting them. No further action is required.\n\nBest,\nHiring Coordinator"},
+  {tier:2,from:"Interview Platform",subject:"Thank you for your video response",body:"Unfortunately,\n\nWe have decided to move forward with a candidate whose response more closely aligned with our expectations for authenticity, confidence, and concise storytelling.\n\nThe Interview Team",video:true,noGreeting:true},
+  {tier:2,from:"Talent Acquisition",subject:"Following Up On Your Application",body:"Dear Candidate,\n\nWe wanted to follow up on your application from three years ago.\n\nAfter careful consideration, we have decided to move in a different direction.\n\nWe wish you all the best in your search.\n\nThe Hiring Team"},
+  {tier:2,from:"LyfeAlways Global Opportunity Team",subject:"Your LyfeAlways Journey",body:"Hi Beautiful!\n\nYou are not the right fit for our inclusive wellness family at this time.\n\nHowever, your LyfeAlways journey does not have to end. We encourage you to purchase our products, share the glow, and invite others into the opportunity.\n\nWarm light,\nLyfeAlways Global Opportunity Team"},
+  // LEVEL 3 — 6 emails
+  {tier:3,from:"Your Success Partner",subject:"Exclusive opportunity — selected for you",body:"Dear Professional,\n\nThis is a commission-only position. No base salary. No benefits.\n\nAfter further review, you are not the right fit.\n\nYour Success Partner"},
+  {tier:3,from:"Talent Acquisition",subject:"Thank you for attending",body:"Dear [First Name],\n\nAs discussed, the market remains competitive. We encourage you to continue refining your personal brand, expanding your network, and staying resilient during this season of opportunity.\n\nWe are not moving forward with your application at this time.\n\nThe Talent Team",webinar:true},
+  {tier:3,from:"Talent Acquisition",subject:"Know someone great?",body:"We won't be moving forward with your application.\n\nDo you know someone great? It would mean a lot to the team if you'd share our posting.\n\nThe Talent Team",noGreeting:true},
+  {tier:3,from:"Senior Recruiter",subject:"You're exactly what we've been looking for",body:"Hi Michael,\n\nWhat a conversation. The team hasn't stopped talking about you.\n\nWe'd like to skip the remaining rounds and bring you on board.\n\nApologies — this was meant for another candidate.\n\nBest,\nSenior Recruiter"},
+  {tier:3,from:"hiringdesk@careers-fast-now.biz",subject:"Congratulation On Not Being Selected At This Time",body:"Hello dear,\n\nWe found your resume most suitable.\n\nUnfortunately, you are not qualify.\n\nDo not reply. This inbox is not monitor.\n\nWarm regard,\nTalent Team",spam:true},
+  {tier:3,from:"The Hiring Team",subject:"Thank you for your work sample",body:"Dear Candidate,\n\nThank you for participating in our competitive hiring process.\n\nWe appreciate your time and effort. However, we have moved forward with an internal hire.\n\nThe Hiring Team",worksample:true,isFinal:true}
+]
+
+/* ===== JEWEL SYSTEM ===== */
+const STONES={
+  sapphire:{l:"#9cc8ff",m:"#2f6bd6",d:"#163f86",glow:"rgba(47,107,214,0.45)"},
+  emerald: {l:"#9af0c4",m:"#17a86a",d:"#0a6a41",glow:"rgba(23,168,106,0.42)"},
+  amethyst:{l:"#d4b2f4",m:"#8d4fd1",d:"#592a91",glow:"rgba(141,79,209,0.45)"},
+  topaz:   {l:"#ffe0a0",m:"#f0a93a",d:"#b06f12",glow:"rgba(240,169,58,0.45)"},
+  ruby:    {l:"#ffabb8",m:"#e0455f",d:"#9c1b34",glow:"rgba(224,69,95,0.42)"},
+  aqua:    {l:"#aeeef5",m:"#2fb6cf",d:"#157f93",glow:"rgba(47,182,207,0.42)"}
+};
+const GEM_TYPES=["sapphire","emerald","amethyst","topaz","ruby","aqua"];
+const _PT={
+  Tl:[10,3],Tr:[30,3],
+  GL:[2,14.5],Gl:[8.5,14.5],Gm:[20,14.5],Gr:[31.5,14.5],GR:[38,14.5],
+  A:[20,38]
+};
+function gem(stone){
+  const c=STONES[stone]||STONES.sapphire;
+  const id="grad-"+stone;
+  const P=_PT;
+  const poly=(pts)=>pts.map(p=>p.join(",")).join(" ");
+  const facets=[
+    {p:[P.Tl,P.GL,P.Gl],f:"rgba(255,255,255,0.16)"},
+    {p:[P.Tl,P.Tr,P.Gr,P.Gl],f:"rgba(255,255,255,0.26)"},
+    {p:[P.Tr,P.Gr,P.GR],f:"rgba(12,18,32,0.12)"},
+    {p:[P.GL,P.Gl,P.A],f:"rgba(255,255,255,0.10)"},
+    {p:[P.Gl,P.Gm,P.A],f:"rgba(12,18,32,0.10)"},
+    {p:[P.Gm,P.Gr,P.A],f:"rgba(255,255,255,0.13)"},
+    {p:[P.Gr,P.GR,P.A],f:"rgba(12,18,32,0.17)"}
+  ];
+  const facetSvg=facets.map(ff=>'<polygon points="'+poly(ff.p)+'" fill="'+ff.f+'"/>').join("");
+  const edges=[
+    [P.GL,P.Gl],[P.Gl,P.Gm],[P.Gm,P.Gr],[P.Gr,P.GR],
+    [P.Gl,P.Tl],[P.Gr,P.Tr],
+    [P.GL,P.A],[P.Gl,P.A],[P.Gm,P.A],[P.Gr,P.A],[P.GR,P.A]
+  ];
+  const edgeSvg=edges.map(e=>'<line x1="'+e[0][0]+'" y1="'+e[0][1]+'" x2="'+e[1][0]+'" y2="'+e[1][1]+'" stroke="rgba(255,255,255,0.22)" stroke-width="0.4"/>').join("");
+  const outline=poly([P.Tl,P.Tr,P.GR,P.A,P.GL]);
+  return '<svg viewBox="0 0 40 41" width="100%" height="100%">'+
+    '<defs><radialGradient id="'+id+'" cx="36%" cy="22%" r="88%">'+
+    '<stop offset="0" stop-color="'+c.l+'"/><stop offset="46%" stop-color="'+c.m+'"/><stop offset="100%" stop-color="'+c.d+'"/>'+
+    '</radialGradient></defs>'+
+    '<polygon points="'+outline+'" fill="url(#'+id+')" stroke="rgba(255,255,255,0.5)" stroke-width="0.6"/>'+
+    facetSvg+edgeSvg+
+    '<g class="glint"><path d="M12.5 5.6 l0.8 2 2 0.8 -2 0.8 -0.8 2 -0.8 -2 -2 -0.8 2 -0.8 z" fill="#fff"/></g>'+
+    '</svg>';
+}
+
+const MAX_HOPE=6;
+const OPPORTUNITY_LINES=[
+  "New opportunity detected.",
+  "A role matching your profile.",
+  "Based on your activity.",
+  "Urgently hiring.",
+  "Strong match found.",
+  "This one looks promising.",
+  "Applications close soon.",
+  "Your persistence has been noted.",
+  "This one might be different.",
+  "The algorithm believes in you.",
+  "It is never too late to receive closure.",
+  "A fresh start.",
+  "This could be the one.",
+  "Resilience is a competitive advantage.",
+  "Your network may still be useful to them.",
+  "Someone is getting hired.",
+  "Effort is an important part of the process.",
+  "One more application cannot statistically hurt."
+];
+const LEVELS=[
+  {num:1,label:"Level 1",title:"Basic Rejections",gemsNeeded:6,unlock:"Enhanced Rejections unlocked.",emails:()=>EMAILS.filter(e=>e.tier===1)},
+  {num:2,label:"Level 2",title:"The Process Becomes Insulting",gemsNeeded:6,unlock:"Premium Rejections unlocked.",emails:()=>EMAILS.filter(e=>e.tier===2)},
+  {num:3,label:"Level 3",title:"Premium Rejections",gemsNeeded:6,complete:null,fine:"",emails:()=>EMAILS.filter(e=>e.tier===3)},
+]
+
+// SOUND — synthesized chimes via Web Audio API, no external files needed
+let soundEnabled=true;
+let audioCtx=null;
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(audioCtx.state==="suspended"){ audioCtx.resume().catch(()=>{}); }
+  return audioCtx;
+}
+function playTone(freq,startTime,duration,gainPeak){
+  const ctx=getAudioCtx();
+  if(!ctx) return;
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type="sine";
+  osc.frequency.value=freq;
+  const t0=ctx.currentTime+startTime;
+  gain.gain.setValueAtTime(0,t0);
+  gain.gain.linearRampToValueAtTime(gainPeak,t0+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001,t0+duration);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(t0);osc.stop(t0+duration+0.05);
+}
+const GEM_SOUND_B64="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qlVMQU1FMy4xMDBVVVX/+2LE1YALQK8bIYcpgWsU4lgV6sBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tgxPODELCrAAGHKYGPMdkIFhbZVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";
+let gemBuffer=null;
+let gemBufferLoading=false;
+let gemBufferPending=false;
+function loadGemBuffer(){
+  if(gemBuffer||gemBufferLoading) return;
+  const ctx=getAudioCtx();
+  if(!ctx) return;
+  gemBufferLoading=true;
+  try{
+    const binary=atob(GEM_SOUND_B64);
+    const len=binary.length;
+    const bytes=new Uint8Array(len);
+    for(let i=0;i<len;i++) bytes[i]=binary.charCodeAt(i);
+    ctx.decodeAudioData(bytes.buffer, (decoded)=>{
+      gemBuffer=decoded;
+      gemBufferLoading=false;
+      if(gemBufferPending){ gemBufferPending=false; firePlayClaimChime(); }
+    }, ()=>{ gemBufferLoading=false; });
+  }catch(e){ gemBufferLoading=false; }
+}
+function firePlayClaimChime(){
+  const ctx=getAudioCtx();
+  if(!ctx||!gemBuffer) return;
+  const src=ctx.createBufferSource();
+  src.buffer=gemBuffer;
+  src.playbackRate.value=0.95+Math.random()*0.10; // subtle pitch variation each play
+  const gain=ctx.createGain();
+  const t0=ctx.currentTime;
+  const peak=0.5+Math.random()*0.12; // subtle volume variation each play
+  gain.gain.setValueAtTime(0,t0);
+  gain.gain.linearRampToValueAtTime(peak,t0+0.012);
+  src.connect(gain);gain.connect(ctx.destination);
+  src.start(t0);
+}
+function playClaimChime(){
+  if(!soundEnabled) return;
+  if(!gemBuffer){ gemBufferPending=true; loadGemBuffer(); return; }
+  firePlayClaimChime();
+}
+function playDeflateSound(){
+  if(!soundEnabled) return;
+  const ctx=getAudioCtx();
+  if(!ctx) return;
+  const osc=ctx.createOscillator();
+  const filter=ctx.createBiquadFilter();
+  const gain=ctx.createGain();
+  osc.type="triangle"; // same instrument family as the lose-screen ending
+  filter.type="lowpass";
+  filter.frequency.value=800; // muted/covered, a quieter cousin of the ending's tone
+  filter.Q.value=0.6;
+  const t0=ctx.currentTime;
+  osc.frequency.setValueAtTime(261.63,t0); // C4, held steady — same note the lose sting opens on
+  gain.gain.setValueAtTime(0,t0);
+  gain.gain.linearRampToValueAtTime(0.045,t0+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001,t0+0.26);
+  osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+  osc.start(t0);osc.stop(t0+0.3);
+}
+function playLevelCompleteChime(){
+  if(!soundEnabled) return;
+  playTone(659.25,0,0.16,0.10);
+  playTone(880,0.11,0.16,0.10);
+  playTone(1318.5,0.22,0.28,0.10);
+}
+function playWinFanfare(){
+  if(!soundEnabled) return;
+  // a richer, longer 4-note ascending run for the actual game win — bigger than a regular level complete
+  playTone(523.25,0,0.15,0.09);
+  playTone(659.25,0.1,0.15,0.10);
+  playTone(880,0.2,0.16,0.11);
+  playTone(1318.5,0.3,0.42,0.12);
+  // layer the gem shimmer on top of the held final note for extra sparkle
+  setTimeout(()=>{ if(soundEnabled) firePlayClaimChime(); },330);
+}
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  document.getElementById("sound-toggle").textContent=soundEnabled?"🔊":"🔇";
+  if(soundEnabled) getAudioCtx(); // resume/create context on user gesture
+}
+
+let G={hope:MAX_HOPE,threat:0,gems:[],phase:"idle",apps:0,over:false,_cur:null,level:0,levelPool:[],levelGems:0,emailIdx:0,usedFortunes:[]};
+loadGemBuffer(); // start decoding immediately at script load, well before any possible first claim
+
+const sc=document.getElementById("sparkle-c"),sctx=sc.getContext("2d");
+let sparks=[];
+function rsz2(){sc.width=window.innerWidth;sc.height=window.innerHeight;}
+window.addEventListener("resize",rsz2);rsz2();
+function spawnSparks(x,y,n,big){
+  n=n||12;const cols=["#fdf2cc","#ffffff","#e7d9ff","#cfe6ff","#ffe6b0","#c8f0d8","#ffcce0"];
+  const sz=big?3.8:1.7;
+  for(let i=0;i<n;i++){const ang=Math.random()*Math.PI*2,spd=(big?2.5:1)*( Math.random()*3.4+1);sparks.push({x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-(big?2.2:.6),life:1,col:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*sz+.6,rot:Math.random()*Math.PI*2,star:Math.random()>.4});}
+}
+(function drawSparks(){
+  sctx.clearRect(0,0,sc.width,sc.height);sparks=sparks.filter(s=>s.life>0);
+  sparks.forEach(s=>{s.x+=s.vx;s.y+=s.vy;s.vy+=0.12;s.life-=0.028;s.rot+=.08;sctx.globalAlpha=Math.max(0,s.life);sctx.save();sctx.translate(s.x,s.y);sctx.rotate(s.rot);if(s.star){sctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=i%2===0?s.r:s.r*.4;i===0?sctx.moveTo(r*Math.cos(a),r*Math.sin(a)):sctx.lineTo(r*Math.cos(a),r*Math.sin(a));}sctx.closePath();sctx.fillStyle=s.col;sctx.fill();}else{sctx.beginPath();sctx.arc(0,0,s.r,0,Math.PI*2);sctx.fillStyle=s.col;sctx.fill();}sctx.restore();});
+  sctx.globalAlpha=1;requestAnimationFrame(drawSparks);
+})();
+
+
+// PROFILE POPUP
+let profileCallback=null;
+function showProfileModal(cb){profileCallback=cb;document.getElementById("profile-modal").style.display="flex";}
+function closeProfileModal(){document.getElementById("profile-modal").style.display="none";if(profileCallback)profileCallback();}
+
+// ALERT POPUP
+let alertCallback=null;
+function showAlertModal(cb){alertCallback=cb;document.getElementById("alert-modal").style.display="flex";}
+function closeAlertModal(){document.getElementById("alert-modal").style.display="none";if(alertCallback)alertCallback();}
+
+// WEBINAR
+let webinarCallback=null;
+let _webRecRunning=false;
+function showWebinar(cb){
+  webinarCallback=cb;
+  document.getElementById("webinar-stage1").style.display="block";
+  document.getElementById("webinar-stage-rec").style.display="none";
+  document.getElementById("webinar-stage2").style.display="none";
+  document.getElementById("webinar-modal").style.display="flex";
+}
+function attendWebinar(){
+  document.getElementById("webinar-stage1").style.display="none";
+  document.getElementById("webinar-stage-rec").style.display="block";
+  document.getElementById("webinar-slide1").style.display="block";
+  document.getElementById("webinar-slide2").style.display="none";
+  const el=document.getElementById("webinar-count-num-live");
+  let count=1247;
+  const t0=performance.now();
+  _webRecRunning=true;
+  clearInterval(window._webTimer);
+  window._webTimer=setInterval(()=>{
+    if(!_webRecRunning){clearInterval(window._webTimer);return;}
+    const elapsed=(performance.now()-t0)/1000;
+    count+=(150+elapsed*95)+Math.random()*40;
+    el.textContent=Math.round(count).toLocaleString();
+  },55);
+  // Swap to line chart after 2 seconds
+  setTimeout(()=>{
+    document.getElementById("webinar-slide1").style.display="none";
+    document.getElementById("webinar-slide2").style.display="block";
+  },2000);
+  // End after 4 seconds (2s per slide)
+  setTimeout(()=>{
+    _webRecRunning=false;
+    clearInterval(window._webTimer);
+    document.getElementById("webinar-stage-rec").style.display="none";
+    document.getElementById("webinar-stage2").style.display="block";
+  },4000);
+}
+function closeWebinar(){
+  _webRecRunning=false;
+  document.getElementById("webinar-modal").style.display="none";
+  if(webinarCallback)webinarCallback();
+}
+
+// WORK SAMPLE
+let workSampleCallback=null;
+function showWorkSample(cb){
+  workSampleCallback=cb;
+  document.getElementById("worksample-stage1").style.display="block";
+  document.getElementById("worksample-stage2").style.display="none";
+  document.getElementById("worksample-stage3").style.display="none";
+  document.getElementById("worksample-stage4").style.display="none";
+  // Reset checkboxes and button
+  ["ws-check1","ws-check2","ws-check3"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.checked=false;
+  });
+  const btn=document.getElementById("ws-submit-btn");
+  if(btn){btn.disabled=true;btn.style.background="#b0bac8";btn.style.borderColor="#b0bac8";btn.style.cursor="not-allowed";}
+  document.getElementById("worksample-modal").style.display="flex";
+}
+function wsCheckUpdate(){
+  const all=["ws-check1","ws-check2","ws-check3"].every(id=>document.getElementById(id)&&document.getElementById(id).checked);
+  const btn=document.getElementById("ws-submit-btn");
+  if(all){
+    btn.disabled=false;
+    btn.style.background="var(--accent)";
+    btn.style.borderColor="var(--accent)";
+    btn.style.cursor="pointer";
+  } else {
+    btn.disabled=true;
+    btn.style.background="#b0bac8";
+    btn.style.borderColor="#b0bac8";
+    btn.style.cursor="not-allowed";
+  }
+}
+function workSampleNext(){
+  document.getElementById("worksample-stage1").style.display="none";
+  document.getElementById("worksample-stage2").style.display="block";
+}
+function submitWorkSample(){
+  document.getElementById("worksample-stage2").style.display="none";
+  document.getElementById("worksample-stage3").style.display="block";
+  setTimeout(()=>{
+    document.getElementById("worksample-stage3").style.display="none";
+    document.getElementById("worksample-stage4").style.display="block";
+  },2200);
+}
+function closeWorkSample(){
+  document.getElementById("worksample-modal").style.display="none";
+  if(workSampleCallback)workSampleCallback();
+}
+
+// QUIZ
+const SURVEY_QS=[
+  {q:"How would you describe your overall candidate experience?",opts:["Humbling and necessary","A valuable learning opportunity","Somehow my fault","Grateful to be considered"]},
+  {q:"How did our team make you feel throughout the process?",opts:["Seen, though ultimately not selected","Optimistic","Inspired","Briefly considered"]},
+  {q:"Would you recommend applying here to a friend?",opts:["Yes, absolutely","Yes, after some personal growth","Yes, once I've reflected on my gaps","Yes"]},
+];
+const ASSESSMENT_QS=[
+  {q:"Your workload has doubled. Your salary has not. How do you respond?",opts:["1 — I struggle","2 — I manage","3 — I thrive","4 — I reframe"]},
+  {q:"What is your relationship with feedback?",opts:["I welcome it","I seek it proactively","I action it","I reframe it as growth"]},
+  {q:"If you were an animal, which would you be?",opts:["A wolf","A dolphin","A shark","I reframe the question"]},
+];
+let QUIZ_QS=ASSESSMENT_QS;
+let quizStep=0;
+let quizCallback=null;
+
+function showSurvey(cb){
+  QUIZ_QS=SURVEY_QS;
+  document.querySelector("#quiz-box .quiz-header-lbl").textContent="Candidate Experience Survey";
+  document.querySelector("#quiz-box .quiz-header-sub").textContent="This should only take a moment.";
+  quizStep=0;quizCallback=cb;
+  document.getElementById("quiz-modal").style.display="flex";
+  renderQuizStep();
+}
+function showQuiz(cb){
+  QUIZ_QS=ASSESSMENT_QS;
+  document.querySelector("#quiz-box .quiz-header-lbl").textContent="Skills Assessment";
+  document.querySelector("#quiz-box .quiz-header-sub").textContent="This should only take a few minutes.";
+  quizStep=0;quizCallback=cb;
+  document.getElementById("quiz-modal").style.display="flex";
+  renderQuizStep();
+}
+function renderQuizStep(){
+  const box=document.getElementById("quiz-content");
+  const btn=document.getElementById("quiz-next-btn");
+  if(quizStep<QUIZ_QS.length){
+    const q=QUIZ_QS[quizStep];
+    box.innerHTML='<div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:16px;line-height:1.5;">'+q.q+'</div>'+
+      q.opts.map((o,i)=>'<label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px;color:#3a3f4a;cursor:pointer;"><input type="radio" name="qopt" value="'+i+'" style="accent-color:var(--accent);"> '+o+'</label>').join('');
+    btn.textContent=quizStep===QUIZ_QS.length-1?"Submit":"Next";
+  } else {
+    box.innerHTML='<div style="font-size:13px;color:var(--faint);font-style:italic;text-align:center;padding:16px 0;">'+( QUIZ_QS===SURVEY_QS ? "Submitting your feedback…" : "Scoring your responses…")+'</div>';
+    btn.style.display="none";
+    setTimeout(()=>{
+      document.getElementById("quiz-modal").style.display="none";
+      btn.style.display="inline-block";
+      if(quizCallback)quizCallback();
+    },1800);
+  }
+}
+function quizNext(){
+  quizStep++;
+  renderQuizStep();
+}
+
+// VIDEO INTERVIEW
+let videoCallback=null;
+function showVideo(cb){
+  videoCallback=cb;
+  document.getElementById("video-modal").style.display="flex";
+  document.getElementById("record-btn").style.display="inline-block";
+  document.getElementById("recording-indicator").style.display="none";
+}
+function startRecording(){
+  document.getElementById("record-btn").style.display="none";
+  document.getElementById("recording-indicator").style.display="block";
+  setTimeout(()=>{
+    document.getElementById("video-modal").style.display="none";
+    document.getElementById("recording-indicator").style.display="none";
+    if(videoCallback)videoCallback();
+  },1800);
+}
+
+function show(id){document.getElementById(id).classList.add("show");}
+function hide(id){document.getElementById(id).classList.remove("show");}
+function startGame(){
+  hide("splash");
+  const ctx=getAudioCtx();
+  if(ctx&&ctx.state==="suspended"){ ctx.resume().catch(()=>{}); }
+  loadGemBuffer();
+  initLevel(0);
+  doApply(); // the splash "Apply Here" click itself counts as the first application
+}
+
+function initLevel(idx){
+  const lvl=LEVELS[idx];
+  G.level=idx;
+  G.hope=MAX_HOPE;
+  G.levelGems=0;
+  G.over=false;
+  G.phase="idle";
+  G._cur=null;
+  G.emailIdx=0;
+  G.levelPool=[...lvl.emails()];
+  render();
+}
+
+function startNextLevel(){
+  G.over=false;
+  document.getElementById("level-screen").style.display="none";
+  initLevel(G.level+1);
+}
+function renderCoins(){
+  const r=document.getElementById("coins-row");r.innerHTML="";
+  for(let i=0;i<MAX_HOPE;i++){const c=document.createElement("div");c.className="coin"+(i>=G.hope?" spent":"");r.appendChild(c);}
+}
+function renderThreat(){
+  const pct=Math.min(100,(G.threat/10)*100);
+  const f=document.getElementById("threat-fill");
+  if(G.threat===0){
+    f.style.width="18%";
+    f.className=""; // small green sliver — all clear
+  } else {
+    f.style.width=pct+"%";
+    f.className=pct>=100?"danger":"active"; // red, growing
+  }
+}
+
+function renderGems(animateLast){
+  const t=document.getElementById("prize-tray"),lbl=document.getElementById("tray-lbl");
+  t.innerHTML="";t.appendChild(lbl);
+  G.gems.forEach((stone,i)=>{
+    const s=document.createElement("span");
+    s.className="gem";
+    if(animateLast && i===G.gems.length-1) s.classList.add("arriving");
+    s.innerHTML=gem(stone);
+    s.style.filter="drop-shadow(0 0 4px "+(STONES[stone]?STONES[stone].glow:"rgba(68,90,122,0.4)")+") drop-shadow(0 1px 2px rgba(30,42,62,0.18))";
+    t.appendChild(s);
+  });
+}
+
+function setPhase(ph){
+  const az=document.getElementById("apply-zone");
+  const ez=document.getElementById("email-zone");
+  const nb=document.getElementById("new-banner");
+  const prompt=document.getElementById("apply-prompt");
+  if(ph==="idle"){
+    az.style.visibility="visible";az.style.pointerEvents="auto";
+    ez.style.visibility="hidden";ez.style.pointerEvents="none";
+    nb.classList.remove("vis");
+    if(G.apps>0){
+      const line=OPPORTUNITY_LINES[Math.min(G.apps-1, OPPORTUNITY_LINES.length-1)];
+      prompt.textContent=line;
+      prompt.style.opacity="1";
+    } else {
+      prompt.style.opacity="0";
+    }
+  } else if(ph==="between"){
+    az.style.visibility="hidden";az.style.pointerEvents="none";
+    ez.style.visibility="hidden";ez.style.pointerEvents="none";
+    nb.classList.remove("vis");
+    prompt.style.opacity="0";
+  } else {
+    az.style.visibility="hidden";az.style.pointerEvents="none";
+    ez.style.visibility="visible";ez.style.pointerEvents="auto";
+    nb.classList.add("vis");
+    prompt.style.opacity="0";
+  }
+}
+
+function render(){renderCoins();renderThreat();renderGems(false);setPhase(G.phase);}
+
+function doApply(){
+  if(G.over||G.phase!=="idle")return;
+  if(G.emailIdx>=G.levelPool.length){
+    if(G.levelGems>=LEVELS[G.level].gemsNeeded){
+      return;
+    }
+    checkLevelComplete();
+    return;
+  }
+  if(G.hope>0) G.hope--;
+  G.apps++;
+  const e=G.levelPool[G.emailIdx];
+  G.emailIdx++;
+  // Check if hope just hit zero — show resilience popup before continuing
+  if(G.hope===0){
+    renderCoins();
+    showHopePopup(()=>proceedWithEmail(e));
+    return;
+  }
+  proceedWithEmail(e);
+}
+
+function proceedWithEmail(e){
+  G._cur=e;
+  function showEmail(){
+    G.phase="email";
+    document.getElementById("efrom").textContent="From: "+e.from;
+    document.getElementById("spam-tag").style.display=e.spam?"inline-block":"none";
+    document.getElementById("esubj").textContent=e.subject;
+    const ebodyEl=document.getElementById("ebody");
+    ebodyEl.textContent=e.body;
+    ebodyEl.classList.toggle("no-greeting",!!e.noGreeting);
+    renderCoins();renderThreat();setPhase("email");
+  }
+  if(e.profilePopup){
+    showProfileModal(()=>showEmail());
+  } else if(e.survey){
+    showSurvey(()=>showEmail());
+  } else if(e.webinar){
+    showWebinar(()=>showEmail());
+  } else if(e.worksample){
+    showWorkSample(()=>showEmail());
+  } else if(e.quiz){
+    showQuiz(()=>showEmail());
+  } else if(e.video){
+    showVideo(()=>showEmail());
+  } else {
+    showEmail();
+  }
+}
+
+// PROFESSIONAL HOPE POPUP — hope dispenser
+let hopeCallback=null;
+let hopeCracked=false;
+const FORTUNES=[
+  "Fortune awaits those who keep applying.",
+  "Many blessings arrive in no-reply form.",
+  "Success awaits those who fail many times.",
+  "A journey of a thousand miles begins with uploading your resume again.",
+  "Bloom where your inbox has planted you.",
+  "The road is long, but your cursor is steady."
+];
+function showHopePopup(cb){
+  hopeCallback=cb;
+  hopeCracked=false;
+  document.getElementById("hope-modal-title").textContent="Professional Hope Depleted";
+  document.getElementById("hope-modal-title").style.display="block";
+  document.getElementById("hope-modal-sub").textContent="Please accept a complimentary career fortune.";
+  document.getElementById("hope-modal-sub").style.display="block";
+  document.getElementById("hope-restored-line").style.display="none";
+  document.getElementById("dispenser-whole").style.display="block";
+  document.getElementById("dispenser-slip").style.display="none";
+  document.getElementById("hope-continue-btn").style.display="none";
+  document.getElementById("hope-modal").style.display="flex";
+}
+function crackCookie(){
+  if(hopeCracked) return;
+  hopeCracked=true;
+  document.getElementById("dispenser-whole").style.display="none";
+  document.getElementById("dispenser-slip").style.display="block";
+  document.getElementById("hope-modal-title").style.display="none";
+  document.getElementById("hope-modal-sub").style.display="none";
+  document.getElementById("hope-restored-line").style.display="block";
+  let available=FORTUNES.filter(f=>!G.usedFortunes.includes(f));
+  if(available.length===0){ G.usedFortunes=[]; available=FORTUNES; } // all six shown — reshuffle the pool
+  const fortune=available[Math.floor(Math.random()*available.length)];
+  G.usedFortunes.push(fortune);
+  document.getElementById("fortune-text").textContent=fortune;
+  document.getElementById("hope-continue-btn").style.display="inline-block";
+}
+function playHopeTick(index){
+  if(!soundEnabled) return;
+  const ctx=getAudioCtx();
+  if(!ctx) return;
+  playTone(420+index*55,0,0.07,0.032);
+}
+function hopeContinue(){
+  document.getElementById("hope-modal").style.display="none";
+  // Animate dots refilling one by one
+  let i=0;
+  function fillNext(){
+    if(i>=MAX_HOPE){
+      setTimeout(()=>{ if(hopeCallback) hopeCallback(); },200);
+      return;
+    }
+    G.hope=i+1;
+    renderCoins();
+    playHopeTick(i);
+    i++;
+    setTimeout(fillNext,90);
+  }
+  setTimeout(fillNext,150);
+}
+
+
+function doClaim(){
+  if(G.over||G.phase!=="email"||!G._cur)return;
+  const e=G._cur;
+  const isFinal=e.isFinal;
+  const stone=GEM_TYPES[G.gems.length % GEM_TYPES.length];
+  G.gems.push(stone); G.levelGems++;
+  playClaimChime();
+  G.phase="idle";G._cur=null;
+  document.getElementById("efrom").textContent="";
+  document.getElementById("esubj").textContent="";
+  document.getElementById("ebody").textContent="";
+  renderCoins();renderThreat();
+  renderGems(true);
+
+  // Bonus gems for the work sample — 3 extra, staggered
+  if(isFinal){
+    setPhase("between"); // immediately prevent Apply Here from being clickable
+    [1,2,3].forEach(n=>{
+      setTimeout(()=>{
+        const bonusStone=GEM_TYPES[G.gems.length % GEM_TYPES.length];
+        G.gems.push(bonusStone);
+        // don't increment levelGems — bonus gems don't count toward level trigger
+        renderGems(true);
+        playClaimChime(); // each bonus gem gets its own shimmer — cascades since they land faster than the chime decays
+        const tray=document.getElementById("prize-tray");
+        const tr=tray.getBoundingClientRect();
+        spawnSparks(tr.left+tr.width/2,tr.top+tr.height/2,10,true);
+      }, n*320);
+    });
+    // Win screen fires after all bonus gems have arrived
+    setTimeout(()=>checkLevelComplete(), 1300);
+    return;
+  }
+
+  const levelDone=G.levelGems>=LEVELS[G.level].gemsNeeded;
+  if(levelDone){
+    setPhase("between");
+    setTimeout(()=>checkLevelComplete(), 900);
+    return;
+  }
+  setPhase("idle");
+  const tray=document.getElementById("prize-tray");
+  const tr=tray.getBoundingClientRect();
+  setTimeout(()=>spawnSparks(tr.left+tr.width/2,tr.top+tr.height/2,12),280);
+}
+
+function askWd(){if(G.over||G.phase!=="email")return;document.getElementById("wd-modal").classList.add("show");}
+function closeWd(){document.getElementById("wd-modal").classList.remove("show");}
+function confirmWd(){
+  closeWd();playDeflateSound();if(G.threat<10)G.threat+=2;G.phase="idle";
+  // Put the current email back in the pool so it can appear again
+  if(G._cur){G.levelPool.push(G._cur);}
+  G._cur=null;
+  document.getElementById("efrom").textContent="";document.getElementById("spam-tag").style.display="none";document.getElementById("esubj").textContent="";document.getElementById("ebody").textContent="";
+  renderCoins();renderThreat();
+  if(G.threat>=10&&!G.over){setTimeout(()=>triggerOffer(),400);return;}
+  render();
+}
+function doIgnore(){
+  if(G.over||G.phase!=="email")return;playDeflateSound();if(G.threat<10)G.threat+=3;G.phase="idle";
+  // Put the current email back in the pool so it can appear again
+  if(G._cur){G.levelPool.push(G._cur);}
+  G._cur=null;
+  document.getElementById("efrom").textContent="";document.getElementById("spam-tag").style.display="none";document.getElementById("esubj").textContent="";document.getElementById("ebody").textContent="";
+  renderCoins();renderThreat();
+  if(G.threat>=10&&!G.over){setTimeout(()=>triggerOffer(),400);return;}
+  render();
+}
+// Gem pile layouts — fixed positions [cx%, cy%, rotation-deg, scale] relative to container
+const PILE_SM = [ // ~6 gems, level 1
+  [38,72,-14,1.0],[52,68, 8,1.05],[66,70,-6,0.95],
+  [44,44,-18,1.1],[58,42, 12,1.0],[51,20, -4,1.08]
+];
+const PILE_MD = [ // ~10 gems, level 2
+  [28,78,-18,0.95],[42,74, 6,1.05],[56,76,-10,1.0],[70,72, 14,0.98],
+  [34,52,-8,1.08],[50,50, 16,1.0],[64,54,-14,1.05],
+  [38,28,-20,1.0],[52,26, 8,1.08],[65,30,-6,0.95]
+];
+const PILE_LG = [ // ~15 gems, legend win — fits 145x130 container
+  [10,90,-20,0.85],[28,88, 6,0.95],[48,90,-14,1.0],[66,87, 12,0.9],[84,89,-16,0.88],[98,86, 4,0.85],
+  [16,64,-10,1.0],[34,61, 18,0.95],[52,59,-16,1.02],[70,63, 8,0.92],[90,61,-8,0.95],
+  [22,36,-20,0.95],[42,34, 10,1.0],[62,32,-10,0.95],[80,36, 16,0.9]
+];
+const STONE_KEYS=["amethyst","sapphire","emerald"];
+function buildPile(container, layout){
+  container.innerHTML="";
+  const W=container.offsetWidth||260;
+  const H=container.offsetHeight||110;
+  layout.forEach(([px,py,rot,sc],i)=>{
+    const stone=STONE_KEYS[i % STONE_KEYS.length];
+    const sz=Math.round(30*sc);
+    const el=document.createElement("div");
+    el.style.cssText=[
+      "position:absolute",
+      "left:"+(px/100*W - sz/2)+"px",
+      "top:"+(py/100*H - sz/2)+"px",
+      "width:"+sz+"px","height:"+(sz+3)+"px",
+      "transform:rotate("+rot+"deg)",
+      "filter:drop-shadow(0 2px 6px rgba(20,30,60,0.22)) drop-shadow(0 0 7px "+STONES[stone].glow+")",
+      "animation:pileGemIn .45s cubic-bezier(.2,.9,.25,1) both",
+      "animation-delay:"+(i*55)+"ms"
+    ].join(";");
+    el.innerHTML=gem(stone);
+    container.appendChild(el);
+  });
+}
+
+function renderLegendRow(){
+  const row=document.getElementById("legend-gem-row");
+  if(!row) return;
+  row.innerHTML="";
+  const stones=["amethyst","sapphire","emerald","sapphire","amethyst"];
+  stones.forEach((stone,i)=>{
+    const el=document.createElement("span");
+    el.className="leg-row-gem";
+    el.style.filter="drop-shadow(0 0 7px "+STONES[stone].glow+") drop-shadow(0 2px 4px rgba(20,30,60,0.18))";
+    el.innerHTML=gem(stone);
+    row.appendChild(el);
+  });
+}
+
+function checkLevelComplete(){
+  const lvl=LEVELS[G.level];
+  if(G.levelGems<lvl.gemsNeeded) return;
+  if(G.level===2){ playWinFanfare(); triggerLegend(); return; }
+  playLevelCompleteChime();
+  const layout=G.level===0 ? PILE_SM : PILE_MD;
+  buildPile(document.getElementById("level-gem-pile"), layout);
+  document.getElementById("level-complete-label").textContent=lvl.label+" Complete";
+  document.getElementById("level-complete-sub").textContent=G.gems.length+" rejections collected.";
+  document.getElementById("level-complete-fine").textContent=lvl.unlock;
+  document.getElementById("level-screen").style.display="flex";
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  spawnSparks(cx,cy,18,true);
+  setTimeout(()=>spawnSparks(cx-60,cy-40,12,true),280);
+  setTimeout(()=>spawnSparks(cx+60,cy-40,12,true),280);
+}
+
+function triggerOffer(){G.over=true;show("offer-screen");}
+function playLoseSound(){
+  if(!soundEnabled) return;
+  const ctx=getAudioCtx();
+  if(!ctx) return;
+  const notes=[261.63,246.94,233.08,220.00]; // descending "wah-wah-wah-waaah"
+  const durs=[0.512,0.512,0.512,1.92];
+  const t0=ctx.currentTime;
+  const breath=0.04; // tiny breath gap between steps
+
+  const osc=ctx.createOscillator();
+  const filter=ctx.createBiquadFilter();
+  const gain=ctx.createGain();
+  osc.type="triangle";
+  filter.type="lowpass";
+  filter.frequency.value=1300;
+  filter.Q.value=0.6;
+
+  gain.gain.setValueAtTime(0,t0);
+  gain.gain.linearRampToValueAtTime(0.06,t0+0.032);
+
+  let t=t0;
+  notes.forEach((freq,i)=>{
+    const dur=durs[i];
+    const segStart=t;
+    const segEnd=t+dur;
+    osc.frequency.setValueAtTime(freq,segStart); // clean step to this note's pitch
+    if(i<notes.length-1){
+      // small waiver within the step
+      osc.frequency.linearRampToValueAtTime(freq-3,segStart+dur*0.5);
+      osc.frequency.linearRampToValueAtTime(freq,segStart+dur*0.85);
+      // quick breath — brief dip right at the boundary before the next step
+      gain.gain.setValueAtTime(0.06,segEnd-breath);
+      gain.gain.linearRampToValueAtTime(0.001,segEnd-breath*0.3);
+      gain.gain.linearRampToValueAtTime(0.06,segEnd+breath*0.3);
+    } else {
+      // final held note — a bit more waiver, then a last gentle droop at the very end
+      osc.frequency.linearRampToValueAtTime(freq+4,segStart+dur*0.55);
+      osc.frequency.linearRampToValueAtTime(freq-4,segStart+dur*0.72);
+      osc.frequency.linearRampToValueAtTime(freq+3,segStart+dur*0.88);
+      osc.frequency.linearRampToValueAtTime(freq-10,segEnd);
+    }
+    t=segEnd;
+  });
+
+  const totalDur=durs.reduce((a,b)=>a+b,0);
+  gain.gain.setValueAtTime(0.06,t0+totalDur-0.28);
+  gain.gain.exponentialRampToValueAtTime(0.001,t0+totalDur);
+
+  osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+  osc.start(t0);osc.stop(t0+totalDur+0.05);
+}
+function claimOffer(){hide("offer-screen");show("lose-screen");playLoseSound();}
+function triggerBurnout(){} // removed
+function buyDig(){document.getElementById("btn-dig").style.display="none";document.getElementById("dig-resp").style.display="block";}
+function triggerLegend(){
+  G.over=true;
+  document.getElementById("leg-score-num").textContent=G.gems.length;
+  document.getElementById("leg-title").classList.add("celebrate");
+  renderLegendRow();
+
+  // Leaderboard
+  const names=["Applicant 404","Preston Wills","Candidate_2291","Just Chillin"];
+  const rows=document.getElementById("leg-board-rows");
+  rows.innerHTML="";
+  const you=document.createElement("div");
+  you.className="leg-you";
+  you.textContent="1.  You — "+G.gems.length;
+  rows.appendChild(you);
+  let prev=G.gems.length;
+  names.slice(0,3).forEach((name,i)=>{
+    prev=Math.max(1,prev-Math.floor(Math.random()*3+1));
+    const row=document.createElement("div");
+    row.textContent=(i+2)+".  "+name+" — "+prev;
+    rows.appendChild(row);
+  });
+  // Just Chillin always at 0
+  const chillRow=document.createElement("div");
+  chillRow.textContent="5.  Just Chillin — 0";
+  rows.appendChild(chillRow);
+  show("legend-screen");
+
+  // Multi-wave sparkle celebration
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  spawnSparks(cx,cy,40,true);
+  setTimeout(()=>spawnSparks(cx-100,cy-80,28,true),300);
+  setTimeout(()=>spawnSparks(cx+100,cy-80,28,true),300);
+  setTimeout(()=>spawnSparks(cx,cy+60,30,true),600);
+  setTimeout(()=>spawnSparks(cx-80,cy-100,22,true),900);
+  setTimeout(()=>spawnSparks(cx+80,cy-100,22,true),900);
+  setTimeout(()=>spawnSparks(cx,cy,35,true),1250);
+}
+function restart(){
+  G={hope:MAX_HOPE,threat:0,gems:[],phase:"idle",apps:0,over:false,_cur:null,level:0,levelPool:[],levelGems:0,emailIdx:0,usedFortunes:[]};
+  ["offer-screen","lose-screen","burnout-screen","legend-screen"].forEach(hide);
+  document.getElementById("leg-title").classList.remove("celebrate");
+  const row=document.getElementById("legend-gem-row"); if(row) row.innerHTML="";
+  document.getElementById("btn-dig").style.display="inline-block";
+  document.getElementById("dig-resp").style.display="none";
+  document.getElementById("efrom").textContent="";document.getElementById("spam-tag").style.display="none";document.getElementById("esubj").textContent="";document.getElementById("ebody").textContent="";
+  show("splash");
+}
+render();
+</script>
+
+<!-- LEVEL COMPLETE -->
+<div id="level-screen" style="display:none;position:fixed;inset:0;z-index:650;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;gap:16px;background:var(--bg);">
+  <div style="font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;" id="level-complete-label">Level 1 Complete</div>
+  <div id="level-gem-pile" style="position:relative;width:260px;height:110px;margin:6px 0;"></div>
+  <div style="font-size:17px;font-weight:600;color:var(--ink);font-family:'IBM Plex Serif',serif;" id="level-complete-sub">6 rejections collected.</div>
+  <div style="font-size:14px;color:var(--accent);font-weight:600;letter-spacing:.03em;" id="level-complete-fine"></div>
+  <button id="level-next-btn" onclick="startNextLevel()" style="margin-top:10px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:11px 32px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;box-shadow:0 1px 2px rgba(20,24,40,0.08);">Continue</button>
+</div>
+
+
+<!-- PROFESSIONAL HOPE POPUP -->
+<div id="hope-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div style="background:var(--card);border-radius:14px;padding:22px 28px 26px;max-width:380px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);text-align:center;">
+    <div id="hope-modal-title" style="font-family:'IBM Plex Sans',sans-serif;font-weight:700;font-size:21px;color:var(--ink);margin:10px 0 6px;letter-spacing:-.01em;">Professional Hope Depleted</div>
+    <div id="hope-modal-sub" style="font-size:14px;color:var(--faint);margin-bottom:12px;">Please accept a complimentary career fortune.</div>
+    <div id="hope-restored-line" style="display:none;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;margin:8px 0 12px;">Professional Hope Restored.</div>
+
+    <!-- Hope Dispenser, clickable -->
+    <div id="dispenser-whole" onclick="crackCookie()" style="cursor:pointer;display:block;margin:0 auto;width:150px;">
+      <svg viewBox="0 0 150 175" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
+        <ellipse cx="75" cy="162" rx="42" ry="6" fill="#000" opacity="0.05"/>
+        <!-- body -->
+        <rect x="25" y="18" width="100" height="134" rx="14" fill="#aed8d5" stroke="#8fb5b1" stroke-width="1"/>
+        <!-- soft divider line instead of harsh band -->
+        <line x1="33" y1="64" x2="117" y2="64" stroke="#8fb5b1" stroke-width="1" opacity="0.45"/>
+        <text x="75" y="40" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="13" font-weight="700" letter-spacing="1" fill="#476e6c">HOPE</text>
+        <text x="75" y="55" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#476e6c">DISPENSER</text>
+        <!-- slot -->
+        <rect x="40" y="98" width="70" height="7" rx="3" fill="#6f9b97"/>
+        <!-- slip emerging -->
+        <rect x="46" y="103" width="58" height="32" rx="2" fill="#fdfbf4" stroke="#cdbf9c" stroke-width="1.2"/>
+        <line x1="53" y1="112" x2="97" y2="112" stroke="#d4c4a0" stroke-width="1.6"/>
+        <line x1="53" y1="119" x2="91" y2="119" stroke="#d4c4a0" stroke-width="1.6"/>
+        <line x1="53" y1="126" x2="95" y2="126" stroke="#d4c4a0" stroke-width="1.6"/>
+        <!-- feet -->
+        <rect x="36" y="152" width="13" height="6" rx="2" fill="#8fb5b1"/>
+        <rect x="101" y="152" width="13" height="6" rx="2" fill="#8fb5b1"/>
+      </svg>
+      <div style="font-size:11px;color:#5c6573;margin-top:6px;font-weight:500;">Click to receive your fortune</div>
+    </div>
+
+    <!-- Fortune slip only, after click — CSS box, grows with content -->
+    <div id="dispenser-slip" style="display:none;margin:8px auto 0;width:100%;max-width:300px;">
+      <div style="background:#fdfbf4;border:1px solid #e0d8c0;border-radius:8px;padding:22px 26px;box-shadow:0 6px 18px rgba(120,100,60,0.12);">
+        <div id="fortune-text" style="font-family:'IBM Plex Serif',serif;font-style:italic;font-size:16px;color:var(--ink);line-height:1.5;"></div>
+      </div>
+    </div>
+
+    <button id="hope-continue-btn" onclick="hopeContinue()" style="display:none;margin-top:18px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:11px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;width:100%;">Continue Applying</button>
+  </div>
+</div>
+
+<!-- PROFILE POPUP -->
+<div id="profile-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div style="background:#fff;border-radius:14px;padding:30px 36px;max-width:380px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);text-align:center;">
+    <div style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:10px;">Candidate Profile Update Required</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Please confirm your job alert preferences.</div>
+    <div style="font-size:13px;color:var(--ink);line-height:2.2;margin-bottom:24px;text-align:left;display:inline-block;">
+      ☑ Entry-level roles requiring 5+ years experience<br>
+      ☑ On-site roles located 74 miles away<br>
+      ☑ Exciting unpaid opportunities<br>
+      ☑ Roles you have already been rejected from
+    </div>
+    <div style="display:block;">
+      <button onclick="closeProfileModal()" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Save Preferences</button>
+    </div>
+  </div>
+</div>
+
+<!-- ENDORSEMENT POPUP -->
+<div id="alert-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div style="background:#fff;border-radius:14px;padding:28px 36px;max-width:360px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);text-align:center;">
+    <div style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:10px;">Skill Endorsement</div>
+    <div style="font-family:'IBM Plex Serif',serif;font-weight:500;font-size:19px;color:var(--ink);margin-bottom:12px;line-height:1.4;">A connection has endorsed you for skills you did not list.</div>
+    <div style="font-size:13px;color:#3a3f4a;line-height:2.2;margin-bottom:24px;text-align:left;display:inline-block;">
+      ☑ Radical Transparency<br>
+      ☑ Pivoting<br>
+      ☑ Cross-functional Alignment<br>
+      ☑ Stakeholder Management
+    </div>
+    <div>
+      <button onclick="closeAlertModal()" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Confirm All</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEBINAR MODAL -->
+<div id="webinar-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div id="webinar-box" style="background:var(--card);border-radius:14px;padding:32px 36px;max-width:400px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);text-align:center;">
+
+    <!-- Stage 1: Invite -->
+    <div id="webinar-stage1">
+      <div style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:10px;">Candidate Webinar</div>
+      <div style="font-family:'IBM Plex Serif',serif;font-weight:500;font-size:21px;color:var(--ink);margin-bottom:16px;line-height:1.35;">Standing Out in a Competitive Applicant Pool</div>
+      <div style="font-size:12px;color:var(--muted);line-height:2.1;margin-bottom:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;">
+        Attendees: <strong style="color:var(--ink);" id="webinar-count-num">1,247</strong><br>
+        Host: <span style="color:var(--faint);font-style:italic;">unavailable</span><br>
+        Chat: <span style="color:var(--faint);font-style:italic;">disabled</span>
+      </div>
+      <div style="font-size:11px;color:var(--faint);margin-bottom:22px;font-style:italic;">This session is mandatory for all candidates.</div>
+      <button onclick="attendWebinar()" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Attend Webinar</button>
+    </div>
+
+    <!-- Stage 2: In progress — AI presenter with charts -->
+    <div id="webinar-stage-rec" style="display:none;">
+      <div style="font-size:10px;font-weight:600;color:var(--danger);letter-spacing:.11em;text-transform:uppercase;margin-bottom:12px;">● Live Now &nbsp;·&nbsp; <span id="webinar-count-num-live" style="font-variant-numeric:tabular-nums;">1,247</span> Attendees</div>
+
+      <!-- Chart slides container -->
+      <div style="background:#f0f4f9;border-radius:8px;padding:14px 16px;margin-bottom:14px;min-height:160px;display:flex;flex-direction:column;justify-content:center;">
+
+        <!-- Slide 1: Pie chart -->
+        <div id="webinar-slide1">
+          <div style="font-size:9px;font-weight:600;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Candidate Pool</div>
+          <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+            <!-- Pie chart centered left -->
+            <!-- Pie chart: PhDs=38%, Overqualified=32%, Connected=26%, You=4% -->
+            <!-- cx=70,cy=65,r=52. Angles from top (270deg), clockwise -->
+            <path d="M70,65 L70,13 A52,52 0 0,1 105.5,103.0 Z" fill="#8d4fd1"/>
+            <!-- Overqualified: 406.8deg to 522deg -->
+            <path d="M70,65 L105.5,103.0 A52,52 0 0,1 20.5,81.1 Z" fill="#f0a93a"/>
+            <!-- Connected: 522deg to 615.6deg -->
+            <path d="M70,65 L20.5,81.1 A52,52 0 0,1 57.1,14.6 Z" fill="#17a86a"/>
+            <!-- You: tiny red sliver -->
+            <path d="M70,65 L57.1,14.6 A52,52 0 0,1 70,13 Z" fill="#e0455f"/>
+            <!-- Center hole -->
+            <circle cx="70" cy="65" r="22" fill="#f0f4f9"/>
+
+            <!-- Legend -->
+            <rect x="140" y="20" width="10" height="10" rx="2" fill="#8d4fd1"/>
+            <text x="155" y="30" font-family="IBM Plex Sans,sans-serif" font-size="11" fill="#3c4756">PhDs</text>
+            <rect x="140" y="40" width="10" height="10" rx="2" fill="#f0a93a"/>
+            <text x="155" y="50" font-family="IBM Plex Sans,sans-serif" font-size="11" fill="#3c4756">Overqualified</text>
+            <rect x="140" y="60" width="10" height="10" rx="2" fill="#17a86a"/>
+            <text x="155" y="70" font-family="IBM Plex Sans,sans-serif" font-size="11" fill="#3c4756">Connected</text>
+            <rect x="140" y="80" width="10" height="10" rx="2" fill="#e0455f"/>
+            <text x="155" y="90" font-family="IBM Plex Sans,sans-serif" font-size="11" fill="#3c4756">You</text>
+          </svg>
+        </div>
+
+        <!-- Slide 2: Line chart (hidden initially) -->
+        <div id="webinar-slide2" style="display:none;">
+          <div style="font-size:9px;font-weight:600;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Key Trends</div>
+          <svg viewBox="0 0 280 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+            <!-- Axes -->
+            <line x1="36" y1="10" x2="36" y2="108" stroke="#c8d4e0" stroke-width="1.5"/>
+            <line x1="36" y1="108" x2="268" y2="108" stroke="#c8d4e0" stroke-width="1.5"/>
+            <!-- "Passionate" line — rises steeply -->
+            <polyline points="36,95 80,78 130,55 180,32 230,16 268,10" fill="none" stroke="#8d4fd1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Salary line — falls gently -->
+            <polyline points="36,30 80,42 130,58 180,72 230,88 268,102" fill="none" stroke="#e0455f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Labels -->
+            <rect x="38" y="6" width="8" height="8" rx="1" fill="#8d4fd1"/>
+            <text x="50" y="14" font-family="IBM Plex Sans,sans-serif" font-size="10" fill="#3c4756">"Passionate" ↑</text>
+            <rect x="38" y="20" width="8" height="8" rx="1" fill="#e0455f"/>
+            <text x="50" y="28" font-family="IBM Plex Sans,sans-serif" font-size="10" fill="#3c4756">Salary ↓</text>
+          </svg>
+        </div>
+
+      </div>
+
+      <!-- AI Presenter -->
+      <div style="display:flex;align-items:center;gap:10px;background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:10px 14px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">AI</div>
+        <div style="text-align:left;">
+          <div style="font-size:12px;font-weight:600;color:var(--ink);">AI Career Coach</div>
+          <div style="font-size:10px;color:var(--faint);">Presenting · TalentStage</div>
+        </div>
+        <div style="margin-left:auto;font-size:10px;color:var(--danger);font-weight:600;animation:blink 1s infinite;">● Speaking</div>
+      </div>
+    </div>
+
+    <!-- Stage 3: Complete -->
+    <div id="webinar-stage2" style="display:none;">
+      <div style="font-family:'IBM Plex Serif',serif;font-weight:500;font-size:21px;color:var(--ink);margin-bottom:12px;">Webinar Complete</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:26px;line-height:1.7;">Thank you for attending.<br>No questions were answered.</div>
+      <button onclick="closeWebinar()" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Return to Inbox</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- WORK SAMPLE MODAL -->
+<div id="worksample-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(27,31,39,0.32);">
+  <div id="worksample-box" style="background:#fff;border-radius:14px;padding:32px 36px;max-width:420px;width:90%;box-shadow:0 16px 50px rgba(20,24,40,0.22);text-align:center;">
+
+    <!-- STAGE 1: Checklist -->
+    <div id="worksample-stage1">
+      <div style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:10px;">Strategic Work Sample</div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:18px;font-style:italic;">Estimated completion time: 3–5 business days</div>
+      <div style="font-size:13px;color:var(--ink);margin-bottom:8px;font-weight:600;">Please confirm that your submission includes:</div>
+      <div style="font-size:13px;color:#3a3f4a;line-height:2.1;margin-bottom:26px;text-align:left;display:inline-block;">
+        ☑ 90-Day Plan<br>
+        ☑ Process Improvement Proposal<br>
+        ☑ Competitive Analysis<br>
+        ☑ Dashboard Mockup<br>
+        ☑ Explanation of Your Thinking
+      </div>
+      <div style="display:block;">
+        <button onclick="workSampleNext()" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Confirm & Continue</button>
+      </div>
+    </div>
+
+    <!-- STAGE 2: Follow-up confirmations -->
+    <div id="worksample-stage2" style="display:none;">
+      <div style="font-size:10px;font-weight:600;color:var(--faint);letter-spacing:.11em;text-transform:uppercase;margin-bottom:10px;">A Few Additional Items</div>
+      <div style="font-size:12px;color:var(--faint);margin-bottom:20px;font-style:italic;">Please confirm the following before submitting.</div>
+      <div style="font-size:13px;color:#3a3f4a;line-height:1.6;margin-bottom:22px;text-align:left;display:inline-block;">
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;cursor:pointer;">
+          <input type="checkbox" id="ws-check1" onchange="wsCheckUpdate()" style="margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+          <span>I attended the mandatory on-site Volunteer Day</span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;cursor:pointer;">
+          <input type="checkbox" id="ws-check2" onchange="wsCheckUpdate()" style="margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+          <span>I have completed the New Hire Readiness Essay <span style="font-size:11px;color:var(--faint);">(minimum 500 words)</span></span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;cursor:pointer;">
+          <input type="checkbox" id="ws-check3" onchange="wsCheckUpdate()" style="margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;">
+          <span>I understand all submitted work becomes property of the Expanded Horizons Project™</span>
+        </label>
+      </div>
+      <div style="display:block;">
+        <button id="ws-submit-btn" onclick="submitWorkSample()" disabled style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:#b0bac8;color:#fff;border:1px solid #b0bac8;cursor:not-allowed;transition:background .2s,border-color .2s;">Submit Work Sample</button>
+      </div>
+      <div style="font-size:10px;color:#b0b8c4;margin-top:14px;line-height:1.6;max-width:300px;margin-left:auto;margin-right:auto;">By submitting, you acknowledge that contributions made during the candidate evaluation process are voluntary and non-compensable.</div>
+    </div>
+
+    <!-- STAGE 3: Reviewing -->
+    <div id="worksample-stage3" style="display:none;">
+      <div style="font-size:13px;color:var(--faint);margin-bottom:12px;font-style:italic;">Reviewing submission...</div>
+    </div>
+
+    <!-- STAGE 4: Return to inbox -->
+    <div id="worksample-stage4" style="display:none;">
+      <div style="font-family:'IBM Plex Serif',serif;font-weight:500;font-size:20px;color:var(--ink);margin-bottom:14px;">Work sample received.</div>
+      <button onclick="closeWorkSample()" style="font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 28px;border-radius:8px;background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;">Return to Inbox</button>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
